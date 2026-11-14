@@ -1,0 +1,25 @@
+name: Register Validation CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: JSON Validation & Secret Screening
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Tier 1 - Gitleaks Secret Scan
+        run: |
+          docker run --rm -v "$PWD:/path" zricethezav/gitleaks:latest detect --source="/path" --verbose
+
+      - name: Validate Register JSON
+        run: |
+          python3 -c "import json; json.load(open('register/vulnerability_register.json'))"
